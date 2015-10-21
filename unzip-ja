@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+require "zip"
+
+ARGV.each do |zip_path|
+  Zip::File.open(zip_path) do |zip|
+    zip.each do |entry|
+      path = entry.name
+      if path.dup.force_encoding("CP932").valid_encoding?
+        path = entry.name.encode("UTF-8", "CP932")
+      end
+      puts(path)
+      unless entry.directory?
+        FileUtils.mkdir_p(File.dirname(path))
+      end
+      entry.extract(path) do
+        true
+      end
+    end
+  end
+end
